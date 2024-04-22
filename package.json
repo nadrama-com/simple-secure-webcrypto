@@ -1,0 +1,37 @@
+{
+  "name": "simple-secure-webcrypto",
+  "version": "1.0.0",
+  "description": "Simple and secure encrypt/decrypt functions using Web Crypto API and no dependencies",
+  "homepage": "https://github.com/Nadrama-com/simple-secure-webcrypto",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nadrama-com/simple-secure-webcrypto.git"
+  },
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Ryan D",
+      "url": "https://ryan0x44.com"
+    }
+  ],
+  "module": "src/index.ts",
+  "files": [
+    "dist/index.js"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "bun build --outfile dist/index.js --target=browser src/",
+    "pretty": "prettier -w src/",
+    "ci-pretty": "prettier -c src/",
+    "lint": "eslint ./src/"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.1.1",
+    "@types/bun": "latest",
+    "eslint": "^9.1.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.2.5",
+    "typescript": "5.3.2",
+    "typescript-eslint": "^7.7.0"
+  }
+}
