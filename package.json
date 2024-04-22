@@ -1,6 +1,6 @@
 {
   "name": "simple-secure-webcrypto",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple and secure encrypt/decrypt functions using Web Crypto API and no dependencies",
   "homepage": "https://github.com/Nadrama-com/simple-secure-webcrypto",
   "repository": {
@@ -14,10 +14,10 @@
       "url": "https://ryan0x44.com"
     }
   ],
-  "module": "src/index.ts",
   "files": [
     "dist/*"
   ],
+  "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
