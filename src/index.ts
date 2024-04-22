@@ -8,7 +8,7 @@ export async function generateKey(keyLength = 256): Promise<string> {
       length: keyLength, // Can be 128, 192, or 256 bits
     },
     true,
-    ["encrypt", "decrypt"]
+    ["encrypt", "decrypt"],
   );
   const exportedKey = await crypto.subtle.exportKey("raw", key);
   return uint8ArrayToBase64(new Uint8Array(exportedKey));
@@ -25,7 +25,7 @@ export async function encrypt(key: string, plaintext: string): Promise<string> {
     enc.encode(key),
     { name: ALGO },
     false,
-    ["encrypt"]
+    ["encrypt"],
   );
   const cryptokeyHmac = await crypto.subtle.importKey(
     "raw",
@@ -35,7 +35,7 @@ export async function encrypt(key: string, plaintext: string): Promise<string> {
       hash: { name: HMAC_ALGO },
     },
     false,
-    ["sign"]
+    ["sign"],
   );
   // encrypt plaintext to ciphertext
   const ciphertext = await crypto.subtle.encrypt(
@@ -44,7 +44,7 @@ export async function encrypt(key: string, plaintext: string): Promise<string> {
       iv: iv,
     },
     cryptokeyAlgo,
-    enc.encode(plaintext)
+    enc.encode(plaintext),
   );
   // convert iv and ciphertext to base64-encoded strings
   const ivString = uint8ArrayToBase64(iv);
@@ -53,7 +53,7 @@ export async function encrypt(key: string, plaintext: string): Promise<string> {
   const signature = await crypto.subtle.sign(
     "HMAC",
     cryptokeyHmac,
-    enc.encode(ivString + "." + ciphertextString)
+    enc.encode(ivString + "." + ciphertextString),
   );
   const signatureString = uint8ArrayToBase64(new Uint8Array(signature));
   return combine(ivString, ciphertextString, signatureString);
@@ -72,7 +72,7 @@ export async function decrypt(key: string, data: string): Promise<string> {
     enc.encode(key),
     { name: ALGO },
     false,
-    ["decrypt"]
+    ["decrypt"],
   );
   const cryptokeyHmac = await crypto.subtle.importKey(
     "raw",
@@ -82,14 +82,14 @@ export async function decrypt(key: string, data: string): Promise<string> {
       hash: { name: HMAC_ALGO },
     },
     false,
-    ["verify"]
+    ["verify"],
   );
   // verify signature for iv.ciphertext
   const isValid = await crypto.subtle.verify(
     "HMAC",
     cryptokeyHmac,
     signature,
-    enc.encode(ivString + "." + ciphertextString)
+    enc.encode(ivString + "." + ciphertextString),
   );
   if (!isValid) {
     throw new Error("Invalid signature");
@@ -101,7 +101,7 @@ export async function decrypt(key: string, data: string): Promise<string> {
       iv: iv,
     },
     cryptokeyAlgo,
-    ciphertext
+    ciphertext,
   );
   const dec = new TextDecoder();
   return dec.decode(decrypted);

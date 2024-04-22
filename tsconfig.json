@@ -1,4 +1,6 @@
 {
+  "include": ["./src/**/*"],
+  "exclude": ["./src/**/*.test.*"],
   "compilerOptions": {
     // Enable latest features
     "lib": ["ESNext", "DOM"],
@@ -12,7 +14,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
 
     // Best practices
     "strict": true,
@@ -22,6 +23,11 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Generate definition files and source maps
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist"
   }
 }

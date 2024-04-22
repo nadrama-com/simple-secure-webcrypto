@@ -1,6 +1,6 @@
 {
   "name": "simple-secure-webcrypto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple and secure encrypt/decrypt functions using Web Crypto API and no dependencies",
   "homepage": "https://github.com/Nadrama-com/simple-secure-webcrypto",
   "repository": {
@@ -16,11 +16,16 @@
   ],
   "module": "src/index.ts",
   "files": [
-    "dist/index.js"
+    "dist/*"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "bun build --outfile dist/index.js --target=browser src/",
+    "types": "bun run tsc --emitDeclarationOnly",
+    "pre-publish": "bun test && bun run build && bun run types",
+    "clean": "rm -rf dist/",
     "pretty": "prettier -w src/",
     "ci-pretty": "prettier -c src/",
     "lint": "eslint ./src/"
