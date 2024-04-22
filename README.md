@@ -8,7 +8,7 @@ This __Simple Secure WebCrypto__ library was created to make it easy to do symme
 
 ✅ Works on browser platforms like Cloudflare Workers.
 
-✅ Secure defaults; uses AES-GCM for encryption.
+✅ Secure defaults; uses AES-GCM (authenticated encryption) with a 256 bit key.
 
 ✅ Written in TypeScript.
 
@@ -38,7 +38,20 @@ try {
 }
 ```
 
-The `decrypt` function will throw an error if the encrypted data is in an invalid format.
+Note: the `decrypt` function will throw an error if the encrypted data is in an invalid format.
+
+To generate a new random encryption secret key, we created the `genkey.ts` helper:
+
+```
+import { generateKey } from "./src/index";
+console.log(await generateKey());
+```
+
+which you can run from this repository root with:
+
+```bash
+bun run ./genkey.ts
+```
 
 ## How does it work?
 

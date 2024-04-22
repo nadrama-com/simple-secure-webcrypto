@@ -1,8 +1,19 @@
 import { generateKey, encrypt, decrypt } from "./index";
 import { expect, test } from "bun:test";
 
-test("Test encrypt/decrypt", async () => {
-  const secret1 = await generateKey(192);
+test("generateKey: keys must be unique", async () => {
+  const key1 = await generateKey();
+  const key2 = await generateKey();
+  expect(key1).not.toEqual(key2);
+});
+
+test("generateKey: key must be 32 bits (44 bits as base64)", async () => {
+  const key1 = await generateKey();
+  expect(key1.length).toEqual(44);
+});
+
+test("encrypt & decrypt: test encrypt then decrypt", async () => {
+  const secret1 = await generateKey();
   console.log("generated key: " + secret1);
   const data1 = "hello world";
   console.log("data: " + data1);
@@ -14,7 +25,7 @@ test("Test encrypt/decrypt", async () => {
   expect(decrypted1).toEqual(data1);
 });
 
-test("Test decrypt throws on invalid input", async () => {
-  const secret = await generateKey(192);
+test("decrypt: should throw on invalid input", async () => {
+  const secret = await generateKey();
   expect(decrypt(secret, "invalid.input")).rejects.toThrow();
 });

@@ -1,39 +1,55 @@
 const ALGO = "AES-GCM";
 
-export async function generateKey(keyLength = 256): Promise<string> {
+// generateKey produces a random base64-encoded 256 bit key
+// note that the base64 string is therefore 352 bits
+export async function generateKey(): Promise<string> {
   const key = await crypto.subtle.generateKey(
     {
       name: ALGO,
-      length: keyLength, // Can be 128, 192, or 256 bits
+      length: 256,
     },
     true,
-    ["encrypt", "decrypt"]
+    ["encrypt", "decrypt"],
   );
   const exportedKey = await crypto.subtle.exportKey("raw", key);
   return uint8ArrayToBase64(new Uint8Array(exportedKey));
 }
 
-export async function encrypt(key: string, plaintext: string): Promise<string> {
-  const enc = new TextEncoder();
-  // generate initilization vector
+// prepareKey expects a base64-encoded 256 bit secret key, decodes it
+// and returns it as a CryptoKey ready for encryption or decryption
+async function prepareKey(secret: string): Promise<CryptoKey> {
+  // decode key and check key length
+  const key = base64ToUint8Array(secret);
+  if (key.length !== 32) {
+    throw new Error("Invalid secret key length - must be 256 bits (32 bytes)");
+  }
+  return crypto.subtle.importKey("raw", key, { name: ALGO }, false, [
+    "encrypt",
+    "decrypt",
+  ]);
+}
+
+// encrypt expects a base64-encoded 256 bit secret key and plaintext, then
+// generates a random 96-bit value for the Initalization Vector (IV),
+// and uses AES-GCM to encrypt the plaintext, then return a base64 encoded IV
+// and ciphertext as a string in the format: iv.ciphertext
+export async function encrypt(
+  secret: string,
+  plaintext: string,
+): Promise<string> {
+  const key = await prepareKey(secret);
+  // generate a random 96 bit (12 byte) initilization vector
   // important: iv must never be reused with a given key.
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  // prepare key
-  const cryptokey = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(key),
-    { name: ALGO },
-    false,
-    ["encrypt"]
-  );
   // encrypt plaintext to ciphertext
+  const enc = new TextEncoder();
   const ciphertext = await crypto.subtle.encrypt(
     {
       name: ALGO,
       iv: iv,
     },
-    cryptokey,
-    enc.encode(plaintext)
+    key,
+    enc.encode(plaintext),
   );
   // convert iv and ciphertext to base64-encoded strings
   const ivString = uint8ArrayToBase64(iv);
@@ -41,31 +57,35 @@ export async function encrypt(key: string, plaintext: string): Promise<string> {
   return ivString + "." + ciphertextString;
 }
 
-export async function decrypt(key: string, data: string): Promise<string> {
-  const enc = new TextEncoder();
-  // decode iv and ciphertext
+// decrypt expects a base64-encoded 256 bit secret key and a string in the
+// format: iv.ciphertext
+// where iv is a base64-encoded 96-bit Initialization Vector (IV) randomly
+// generated (and only used once) by the encode function,
+// and ciphertext is base64 encoded AES-GCM encrypted plaintext.
+// it then decrypts this ciphertext and returns the plaintext string.
+export async function decrypt(secret: string, data: string): Promise<string> {
+  const key = await prepareKey(secret);
+  // get iv and ciphertext
   const parts = data.split(".");
   if (parts.length !== 2) {
-    throw new Error("invalid input");
+    throw new Error("Invalid input");
   }
   const iv = base64ToUint8Array(parts[0]);
+  if (iv.length != 12) {
+    throw new Error("Invalid IV length - must be 96 bits (12 bytes)");
+  }
   const ciphertext = base64ToUint8Array(parts[1]);
-  // prepare key
-  const cryptokey = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(key),
-    { name: ALGO },
-    false,
-    ["decrypt"]
-  );
+  if (ciphertext.length == 0) {
+    throw new Error("Invalid ciphertext length - cannot be empty");
+  }
   // decrypt ciphertext to plaintext
   const decrypted = await crypto.subtle.decrypt(
     {
       name: ALGO,
       iv: iv,
     },
-    cryptokey,
-    ciphertext
+    key,
+    ciphertext,
   );
   const dec = new TextDecoder();
   return dec.decode(decrypted);
