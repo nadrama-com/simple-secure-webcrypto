@@ -1,16 +1,16 @@
 # simple-secure-webcrypto
 
-This __Simple Secure WebCrypto__ library was created to make it easy to do symmetric encryption and decryption using the Web Crypto API, which provides the SubtleCrypto interface with low-level cryptographic functions.
+This __Simple Secure WebCrypto__ library was created to make it easy to do symmetric encryption and decryption of strings using the Web Crypto API, which provides the SubtleCrypto interface with low-level cryptographic functions.
 
 ## Features
 
-✅ Zero package dependencies - exclusively uses WebCrypto API
+✅ Zero package dependencies - exclusively uses WebCrypto API.
 
-✅ Works on browser platforms like Cloudflare Workers
+✅ Works on browser platforms like Cloudflare Workers.
 
-✅ Secure defaults
+✅ Secure defaults; uses AES-GCM for encryption.
 
-✅ Written in TypeScript
+✅ Written in TypeScript.
 
 ## Who is this library for?
 
@@ -27,6 +27,8 @@ bun install simple-secure-webcrypto
 Then invoke the async `encrypt` and `decrypt` functions:
 
 ```
+import { encrypt, decrypt } from "simple-secure-webcrypto";
+
 const someData = "hello world";
 try {
     const encrypted = await encrypt(env.ENCRYPTION_SECRET, someData);
@@ -42,15 +44,13 @@ The `decrypt` function will throw an error if the encrypted data is in an invali
 
 Under the hood the SubtleCrypto interface provides encryption and decryption functions which support multiple algorithms.
 
-The encrypted string returns from our `encrypt` function will be encoded as `iv.ciphertext.signature` where:
+The encrypted string returns from our `encrypt` function will be encoded as `iv.ciphertext` where:
 
 * IV is the base64 encoded Initialization Vector (IV) aka nonce, randomly generated on each `encrypt` function invocation.
 
 * Ciphertext is the base64 encoded AES-GCM encrypted value.
 
-* Signature is the SHA-256 HMAC of `iv.ciphertext`
-
-The returned string can safely be stored in a database or cookie, and during decryption the HMAC signature will first be verified, before the ciphertext is decrypted using the IV and secret.
+The returned string can safely be stored in a database or cookie; AES-GCM uses authenticated encryption, which will fail if either the ciphertext or IV cannot be verified, per `Appendix B: Authentication Assurance` in [NIST SP 800-38D](https://csrc.nist.gov/pubs/sp/800/38/d/final).
 
 ## License
 
@@ -69,6 +69,8 @@ Thank you to [Nadrama.com](https://nadrama.com) for sponsoring this work! Nadram
 * [MDN SubtleCrypto supported algorithms](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#supported_algorithms)
 
 * [Cloudflare Web Crypto supported algorithms](https://developers.cloudflare.com/workers/runtime-apis/web-crypto/#supported-algorithms)
+
+* [NIST SP 800-38D: AES in Galois/Counter Mode](https://csrc.nist.gov/pubs/sp/800/38/d/final)
 
 ## Development
 
