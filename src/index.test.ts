@@ -1,4 +1,4 @@
-import { generateKey, encrypt, decrypt } from "./index";
+import { prepareKey, generateKey, encrypt, decrypt } from "./index";
 import { expect, test } from "bun:test";
 
 test("generateKey: keys must be unique", async () => {
@@ -10,6 +10,16 @@ test("generateKey: keys must be unique", async () => {
 test("generateKey: key must be 32 bits (44 bits as base64)", async () => {
   const key1 = await generateKey();
   expect(key1.length).toEqual(44);
+});
+
+test("prepareKey: should throw if secret is invalid", async () => {
+  expect(prepareKey("invalid")).rejects.toThrow();
+  expect(prepareKey("invali!d@.")).rejects.toThrow();
+});
+
+test("prepareKey: should not throw error if secret is valid", async () => {
+  const validKey = await generateKey();
+  expect(prepareKey(validKey)).resolves.toBeInstanceOf(CryptoKey);
 });
 
 test("encrypt & decrypt: test encrypt then decrypt", async () => {

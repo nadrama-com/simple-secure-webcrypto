@@ -17,9 +17,22 @@ export async function generateKey(): Promise<string> {
 
 // prepareKey expects a base64-encoded 256 bit secret key, decodes it
 // and returns it as a CryptoKey ready for encryption or decryption
-async function prepareKey(secret: string): Promise<CryptoKey> {
+export async function prepareKey(secret: string): Promise<CryptoKey> {
   // decode key and check key length
-  const key = base64ToUint8Array(secret);
+  let key: Uint8Array;
+  try {
+    key = base64ToUint8Array(secret);
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      error.name === "InvalidCharacterError"
+    ) {
+      throw new Error(
+        "Encryption secret contains invalid characters - it must be base64-encoded",
+      );
+    }
+    throw error;
+  }
   if (key.length !== 32) {
     throw new Error("Invalid secret key length - must be 256 bits (32 bytes)");
   }

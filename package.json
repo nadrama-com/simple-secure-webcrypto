@@ -1,6 +1,6 @@
 {
   "name": "simple-secure-webcrypto",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple and secure encrypt/decrypt functions using Web Crypto API and no dependencies",
   "homepage": "https://github.com/Nadrama-com/simple-secure-webcrypto",
   "repository": {
