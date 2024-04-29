@@ -1,0 +1,8 @@
+echo "Checking code formatting with prettier..."
+bun ci-pretty
+
+echo "Running linter..."
+bun lint
+
+echo "Running tests..."
+bun test
